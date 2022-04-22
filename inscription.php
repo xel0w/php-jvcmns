@@ -1,10 +1,9 @@
 <?php
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
-error_reporting(E_ALL);
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
 header("Content-Type: application/json");
+
 
 include("jwt.php");
 
@@ -31,7 +30,7 @@ $utilisateurs = $requete->fetch();
 if(!($utilisateurs['nbr'])==0){
     echo json_encode(["erreur" => "Pseudo ou Mail est déja utilisé"]);
 }else{
-    echo json_encode(["ok" => ""]);
+    echo json_encode(["ok" => "ok"]);
 }
     $requete = $connexion->prepare(
     "INSERT INTO users (usersPseudo, usersMotDePasse, usersMail)
