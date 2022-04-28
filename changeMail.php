@@ -4,15 +4,25 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
 header("Content-Type: application/json");
 
+
 include("jwt.php");
 
 $json = file_get_contents('php://input');
 $data = json_decode($json);
-$mot = $data->motDePasse;
-
 
 $connexion = new PDO("mysql:host=localhost:3306;dbname=jvc_mns;charset=UTF8", "root", "");
-$connexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$connexion->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+
+
+$requete = $connexion->prepare(
+    "UPDATE users 
+    SET usersMail = :mail 
+    WHERE usersId = :id"
+);
+$requete->execute([
+    "mail" => $data->mail,
+    "id" => $data->id
+]);
 
 
 $requete = $connexion->prepare(
@@ -20,7 +30,6 @@ $requete = $connexion->prepare(
      FROM users 
      WHERE usersPseudo = :pseudo"
 );
-
 $requete->execute(
     [
         "pseudo" => $data->pseudo
@@ -29,18 +38,4 @@ $requete->execute(
 
 $utilisateur = $requete->fetch();
 
-if (password_verify($mot, $utilisateur["usersMotDePasse"]))
-{
-  if ($utilisateur) {
-
-    if($utilisateur['usersActif'] == 1) {
-        echo json_encode(["token" => getJwt($utilisateur)]);
-    } else {
-        echo json_encode(["erreur" => "compte desactivé"]);
-    }
-}
-}
-else
-{
-    echo json_encode(["erreur" => "Mauvais mot de passe"]);
-}
+echo json_encode(["token" => getJwt($utilisateur)]);
