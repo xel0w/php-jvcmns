@@ -19,9 +19,9 @@ $connexion->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
 $requete = $connexion->prepare(
     "UPDATE users 
     SET usersMotDePasse = :mdp 
-    WHERE usersPseudo = :pseudo"
+    WHERE usersId = :id"
 );
 $requete->execute([
     "mdp" => $mdp,
-    "pseudo" => $data->pseudo
+    "id" => $data->id
 ]);

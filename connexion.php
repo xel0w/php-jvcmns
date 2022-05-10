@@ -16,7 +16,7 @@ $connexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 
 $requete = $connexion->prepare(
-    "SELECT usersMotDePasse, usersId, usersPseudo, usersAdmin, usersActif, usersProfilPicture, usersMail
+    "SELECT usersId, usersPseudo, usersAdmin, usersActif, usersProfilPicture, usersMail
      FROM users 
      WHERE usersPseudo = :pseudo"
 );
@@ -28,19 +28,20 @@ $requete->execute(
 );
 
 $utilisateur = $requete->fetch();
+echo json_encode(["token" => getJwt($utilisateur)]);
 
-if (password_verify($mot, $utilisateur["usersMotDePasse"]))
-{
-  if ($utilisateur) {
+// if (password_verify($mot, $utilisateur["usersMotDePasse"]))
+// {
+//   if ($utilisateur) {
 
-    if($utilisateur['usersActif'] == 1) {
-        echo json_encode(["token" => getJwt($utilisateur)]);
-    } else {
-        echo json_encode(["erreur" => "compte desactivé"]);
-    }
-}
-}
-else
-{
-    echo json_encode(["erreur" => "Mauvais mot de passe"]);
-}
+//     if($utilisateur['usersActif'] == 1) {
+//         echo json_encode(["token" => getJwt($utilisateur)]);
+//     } else {
+//         echo json_encode(["erreur" => "compte desactivé"]);
+//     }
+// }
+// }
+// else
+// {
+//     echo json_encode(["erreur" => "Mauvais mot de passe"]);
+// }
