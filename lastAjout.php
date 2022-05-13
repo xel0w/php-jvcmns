@@ -11,7 +11,7 @@ $requete = $connexion->prepare(
     "SELECT * FROM jeux 
     JOIN users 
     ON jeux.jeuxAddedBy = users.usersId 
-    ORDER BY jeuxTitre"
+    ORDER BY usersId DESC LIMIT 1"
 );
 
 $requete->execute();

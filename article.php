@@ -4,42 +4,30 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
 header("Content-Type: application/json");
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 include("jwt.php");
 
-$token = getBearerToken();
+$json = file_get_contents('php://input');
+$data = json_decode($json);
+$img = $data->photo;
+$imgmodif = (explode("\\",$img)[2]);
 
-if($token && isJwtValid($token)){
+$connexion = new PDO("mysql:host=localhost:3306;dbname=jvc_mns;charset=UTF8", "root", "");
+$connexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $utilisateur = getPayload($token);
+$requete = $connexion->prepare(
+    "INSERT INTO jeux (jeuxTitre, jeuxGenre, jeuxNote, jeuxEditeur, jeuxAddedBy, jeuxPhoto)
+    VALUES (:titre, :genre, :note, :editeur, :id, :photo)"
+);
 
-    if($utilisateur->admin){
+$requete->execute(
+    [
+        "titre" => $data->titre,
+        "genre" => $data->genre,
+        "note" => $data->note,
+        "editeur" => $data->editeur,
+        "id" => $data->id,
+        "photo" => $imgmodif
+    ]
+);
 
-
-        $json = file_get_contents('php://input');
-
-        $data = json_decode($json);
-
-        $connexion = new PDO("mysql:host=localhost:3306;dbname=mns_blog_2022;charset=UTF8","root",""); 
-        $connexion->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-
-        $requete = $connexion->prepare("INSERT INTO article (titre, texte, sous_titre) VALUES (:titre, :texte, :sous_titre)");
-
-        $requete->execute(
-            [
-                "titre" => $data->titre,
-                "texte" => $data->texte,
-                "sous_titre" => $data->sous_titre,
-            ]
-        );
-        echo json_encode(["reponse" => "Article ajouté"]);
-    }else{
-        echo json_encode(["reponse" => "Droit insuffisants"]);
-    }
-}else{
-    echo json_encode(["reponse" => "Vous n'êtes pas connecté"]);
-
-}
+echo json_encode(["ok" => "ok"]);
