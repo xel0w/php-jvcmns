@@ -8,10 +8,13 @@ $connexion = new PDO("mysql:host=localhost:3306;dbname=jvc_mns;charset=UTF8","ro
 $connexion->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
 
 $requete = $connexion->prepare(
-    "SELECT * FROM jeux 
-    JOIN users 
-    ON jeux.jeuxAddedBy = users.usersId 
-    ORDER BY jeuxTitre"
+    "SELECT *, ROUND(COALESCE(AVG(ju.jeuxNote),0),1) AS moyenne FROM jeux j 
+    JOIN users u
+    ON j.jeuxAddedBy = u.usersId 
+    LEFT JOIN jeuxxusers ju
+    ON ju.jeuxId = j.jeuxId
+    GROUP BY j.jeuxId
+    ORDER BY jeuxTitre;"
 );
 
 $requete->execute();

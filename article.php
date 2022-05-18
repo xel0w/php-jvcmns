@@ -29,5 +29,17 @@ $requete->execute(
         "photo" => $imgmodif
     ]
 );
+$requete = $connexion->prepare(
+    "INSERT INTO jeuxxusers (jeuxId, usersId, jeuxNote)
+    VALUES (:jeuxId, :usersId, :jeuxNote)"
+);
+$requete->execute(
+    [
+        "jeuxId" => $connexion->lastInsertId(),
+        "usersId" => $data->id,
+        "jeuxNote" => $data->note,
+    ]
+);
+
 
 echo json_encode(["ok" => "ok"]);

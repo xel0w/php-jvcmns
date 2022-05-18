@@ -14,9 +14,8 @@ $mot = $data->motDePasse;
 $connexion = new PDO("mysql:host=localhost:3306;dbname=jvc_mns;charset=UTF8", "root", "");
 $connexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-
 $requete = $connexion->prepare(
-    "SELECT usersId, usersPseudo, usersAdmin, usersActif, usersProfilPicture, usersMail
+    "SELECT usersMotDePasse
      FROM users 
      WHERE usersPseudo = :pseudo"
 );
@@ -28,20 +27,25 @@ $requete->execute(
 );
 
 $utilisateur = $requete->fetch();
-echo json_encode(["token" => getJwt($utilisateur)]);
+// echo json_encode(['erreur' => $mot]);
+if (password_verify($mot, $utilisateur["usersMotDePasse"]))
+{
 
-// if (password_verify($mot, $utilisateur["usersMotDePasse"]))
-// {
-//   if ($utilisateur) {
+    $requete = $connexion->prepare(
+        "SELECT usersId, usersPseudo, usersAdmin, usersActif, usersProfilPicture, usersMail
+        FROM users 
+        WHERE usersPseudo = :pseudo"
+    );
 
-//     if($utilisateur['usersActif'] == 1) {
-//         echo json_encode(["token" => getJwt($utilisateur)]);
-//     } else {
-//         echo json_encode(["erreur" => "compte desactivé"]);
-//     }
-// }
-// }
-// else
-// {
-//     echo json_encode(["erreur" => "Mauvais mot de passe"]);
-// }
+    $requete->execute(
+        [
+            "pseudo" => $data->pseudo
+        ]
+    );
+
+    $utilisateur = $requete->fetch();
+
+    echo json_encode(["token" => getJwt($utilisateur)]);
+}else{
+    echo json_encode(["erreur" => "Mauvais id / mdp"]);
+}
